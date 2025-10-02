@@ -1,0 +1,38 @@
+{
+  "recommendations": [
+    // Essential Extensions
+    "ms-vscode.vscode-typescript-next",
+    "bradlc.vscode-tailwindcss",
+    "esbenp.prettier-vscode",
+    "ms-vscode.vscode-eslint",
+    "ms-vscode.vscode-json",
+    
+    // React/Frontend
+    "dsznajder.es7-react-js-snippets",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    "christian-kohler.npm-intellisense",
+    
+    // Database/Backend
+    "ms-vscode.vscode-prisma",
+    "ms-vscode.vscode-graphql",
+    "humao.rest-client",
+    
+    // Testing
+    "ms-vscode.vscode-vitest",
+    "ms-vscode.vscode-jest",
+    
+    // Utilities
+    "ms-vscode.vscode-git-graph",
+    "ms-vscode.vscode-docker",
+    "ms-vscode.vscode-thunder-client",
+    "ms-vscode.vscode-yaml",
+    "redhat.vscode-xml",
+    
+    // Productivity
+    "ms-vscode.vscode-todo-highlight",
+    "gruntfuggly.todo-tree",
+    "alefragnani.bookmarks",
+    "ms-vscode.vscode-remote-containers"
+  ]
+}

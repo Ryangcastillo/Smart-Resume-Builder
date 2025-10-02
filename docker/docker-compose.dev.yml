@@ -1,0 +1,41 @@
+# Docker configuration for development
+
+version: "3.8"
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ats_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.dev
+    env_file:
+      - ../backend/.env.example
+    depends_on:
+      - db
+    ports:
+      - "3001:3001"
+    volumes:
+      - ../backend:/app
+      - /app/node_modules
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+
+volumes:
+  db-data:
