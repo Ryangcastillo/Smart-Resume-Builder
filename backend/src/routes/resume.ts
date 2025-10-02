@@ -1,6 +1,6 @@
-import { Router, Request, Response } from 'express';
-import { ResumeService } from '../services/resume/service';
+import { Request, Response, Router } from 'express';
 import { logger } from '../logger';
+import { ResumeService } from '../services/resume/service';
 
 const router = Router();
 
@@ -13,17 +13,19 @@ router.get('/', async (req: Request, res: Response) => {
 
     if (!user) {
       return res.status(401).json({
-        error: 'Authentication required'
+        error: 'Authentication required',
       });
     }
 
     const resumes = await ResumeService.getUserResumes(user.id);
     res.json({ resumes });
+    return;
   } catch (error) {
     logger.error('Get resumes error:', error);
     res.status(500).json({
-      error: 'Failed to fetch resumes'
+      error: 'Failed to fetch resumes',
     });
+    return;
   }
 });
 
@@ -37,7 +39,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
     if (!user) {
       return res.status(401).json({
-        error: 'Authentication required'
+        error: 'Authentication required',
       });
     }
 
@@ -45,16 +47,18 @@ router.get('/:id', async (req: Request, res: Response) => {
 
     if (!resume) {
       return res.status(404).json({
-        error: 'Resume not found'
+        error: 'Resume not found',
       });
     }
 
     res.json({ resume });
+    return;
   } catch (error) {
     logger.error('Get resume error:', error);
     res.status(500).json({
-      error: 'Failed to fetch resume'
+      error: 'Failed to fetch resume',
     });
+    return;
   }
 });
 
@@ -67,7 +71,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     if (!user) {
       return res.status(401).json({
-        error: 'Authentication required'
+        error: 'Authentication required',
       });
     }
 
@@ -76,29 +80,33 @@ router.post('/', async (req: Request, res: Response) => {
     // Validate resume data
     const validation = ResumeService.validateResumeData(resumeData);
     if (!validation.isValid) {
-      return res.status(400).json({
+      res.status(400).json({
         error: 'Validation failed',
-        details: validation.errors
+        details: validation.errors,
       });
+      return;
     }
 
     const resume = await ResumeService.createResume(user.id, resumeData);
     res.status(201).json({
       message: 'Resume created successfully',
-      resume
+      resume,
     });
+    return;
   } catch (error) {
     logger.error('Create resume error:', error);
 
     if (error instanceof Error) {
-      return res.status(400).json({
-        error: error.message
+      res.status(400).json({
+        error: error.message,
       });
+      return;
     }
 
     res.status(500).json({
-      error: 'Failed to create resume'
+      error: 'Failed to create resume',
     });
+    return;
   }
 });
 
@@ -112,7 +120,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     if (!user) {
       return res.status(401).json({
-        error: 'Authentication required'
+        error: 'Authentication required',
       });
     }
 
@@ -121,29 +129,33 @@ router.put('/:id', async (req: Request, res: Response) => {
     // Validate resume data
     const validation = ResumeService.validateResumeData(updateData);
     if (!validation.isValid) {
-      return res.status(400).json({
+      res.status(400).json({
         error: 'Validation failed',
-        details: validation.errors
+        details: validation.errors,
       });
+      return;
     }
 
     const resume = await ResumeService.updateResume(user.id, updateData);
     res.json({
       message: 'Resume updated successfully',
-      resume
+      resume,
     });
+    return;
   } catch (error) {
     logger.error('Update resume error:', error);
 
     if (error instanceof Error) {
-      return res.status(400).json({
-        error: error.message
+      res.status(400).json({
+        error: error.message,
       });
+      return;
     }
 
     res.status(500).json({
-      error: 'Failed to update resume'
+      error: 'Failed to update resume',
     });
+    return;
   }
 });
 
@@ -157,26 +169,29 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     if (!user) {
       return res.status(401).json({
-        error: 'Authentication required'
+        error: 'Authentication required',
       });
     }
 
     await ResumeService.deleteResume(id, user.id);
     res.json({
-      message: 'Resume deleted successfully'
+      message: 'Resume deleted successfully',
     });
+    return;
   } catch (error) {
     logger.error('Delete resume error:', error);
 
     if (error instanceof Error && error.message.includes('not found')) {
-      return res.status(404).json({
-        error: error.message
+      res.status(404).json({
+        error: error.message,
       });
+      return;
     }
 
     res.status(500).json({
-      error: 'Failed to delete resume'
+      error: 'Failed to delete resume',
     });
+    return;
   }
 });
 
@@ -190,27 +205,30 @@ router.patch('/:id/default', async (req: Request, res: Response) => {
 
     if (!user) {
       return res.status(401).json({
-        error: 'Authentication required'
+        error: 'Authentication required',
       });
     }
 
     const resume = await ResumeService.setDefaultResume(id, user.id);
     res.json({
       message: 'Default resume updated successfully',
-      resume
+      resume,
     });
+    return;
   } catch (error) {
     logger.error('Set default resume error:', error);
 
     if (error instanceof Error) {
-      return res.status(400).json({
-        error: error.message
+      res.status(400).json({
+        error: error.message,
       });
+      return;
     }
 
     res.status(500).json({
-      error: 'Failed to set default resume'
+      error: 'Failed to set default resume',
     });
+    return;
   }
 });
 
@@ -224,24 +242,27 @@ router.get('/:id/variants', async (req: Request, res: Response) => {
 
     if (!user) {
       return res.status(401).json({
-        error: 'Authentication required'
+        error: 'Authentication required',
       });
     }
 
     const variants = await ResumeService.getResumeVariants(id, user.id);
     res.json({ variants });
+    return;
   } catch (error) {
     logger.error('Get resume variants error:', error);
 
     if (error instanceof Error && error.message.includes('not found')) {
-      return res.status(404).json({
-        error: error.message
+      res.status(404).json({
+        error: error.message,
       });
+      return;
     }
 
     res.status(500).json({
-      error: 'Failed to fetch resume variants'
+      error: 'Failed to fetch resume variants',
     });
+    return;
   }
 });
 
