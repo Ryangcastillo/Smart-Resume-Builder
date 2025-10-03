@@ -1,7 +1,6 @@
-import { Router, Request, Response } from 'express';
-import { AuthService } from '../services/auth/service';
-import { JWTService } from '../services/auth/jwt';
+import { Request, Response, Router } from 'express';
 import { logger } from '../logger';
+import { AuthService } from '../services/auth/service';
 
 const router = Router();
 
@@ -14,7 +13,7 @@ router.post('/register', async (req: Request, res: Response) => {
 
     if (!email || !password) {
       return res.status(400).json({
-        error: 'Email and password are required'
+        error: 'Email and password are required',
       });
     }
 
@@ -35,18 +34,21 @@ router.post('/register', async (req: Request, res: Response) => {
       },
       tokens,
     });
+    return;
   } catch (error) {
     logger.error('Registration error:', error);
 
     if (error instanceof Error) {
-      return res.status(400).json({
-        error: error.message
+      res.status(400).json({
+        error: error.message,
       });
+      return;
     }
 
     res.status(500).json({
-      error: 'Internal server error'
+      error: 'Internal server error',
     });
+    return;
   }
 });
 
@@ -59,7 +61,7 @@ router.post('/login', async (req: Request, res: Response) => {
 
     if (!email || !password) {
       return res.status(400).json({
-        error: 'Email and password are required'
+        error: 'Email and password are required',
       });
     }
 
@@ -78,18 +80,21 @@ router.post('/login', async (req: Request, res: Response) => {
       },
       tokens,
     });
+    return;
   } catch (error) {
     logger.error('Login error:', error);
 
     if (error instanceof Error && error.message.includes('Invalid credentials')) {
-      return res.status(401).json({
-        error: 'Invalid credentials'
+      res.status(401).json({
+        error: 'Invalid credentials',
       });
+      return;
     }
 
     res.status(500).json({
-      error: 'Internal server error'
+      error: 'Internal server error',
     });
+    return;
   }
 });
 
@@ -102,7 +107,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
 
     if (!refreshToken) {
       return res.status(400).json({
-        error: 'Refresh token is required'
+        error: 'Refresh token is required',
       });
     }
 
@@ -118,18 +123,21 @@ router.post('/refresh', async (req: Request, res: Response) => {
       },
       tokens,
     });
+    return;
   } catch (error) {
     logger.error('Token refresh error:', error);
 
     if (error instanceof Error) {
-      return res.status(401).json({
-        error: error.message
+      res.status(401).json({
+        error: error.message,
       });
+      return;
     }
 
     res.status(500).json({
-      error: 'Internal server error'
+      error: 'Internal server error',
     });
+    return;
   }
 });
 
@@ -143,7 +151,7 @@ router.get('/me', async (req: Request, res: Response) => {
 
     if (!user) {
       return res.status(401).json({
-        error: 'Not authenticated'
+        error: 'Not authenticated',
       });
     }
 
@@ -157,11 +165,13 @@ router.get('/me', async (req: Request, res: Response) => {
         createdAt: user.createdAt,
       },
     });
+    return;
   } catch (error) {
     logger.error('Get profile error:', error);
     res.status(500).json({
-      error: 'Internal server error'
+      error: 'Internal server error',
     });
+    return;
   }
 });
 
@@ -175,7 +185,7 @@ router.put('/profile', async (req: Request, res: Response) => {
 
     if (!user) {
       return res.status(401).json({
-        error: 'Not authenticated'
+        error: 'Not authenticated',
       });
     }
 
@@ -197,30 +207,34 @@ router.put('/profile', async (req: Request, res: Response) => {
         avatar: updatedUser.avatar,
       },
     });
+    return;
   } catch (error) {
     logger.error('Update profile error:', error);
 
     if (error instanceof Error) {
-      return res.status(400).json({
-        error: error.message
+      res.status(400).json({
+        error: error.message,
       });
+      return;
     }
 
     res.status(500).json({
-      error: 'Internal server error'
+      error: 'Internal server error',
     });
+    return;
   }
 });
 
 /**
  * Logout (client-side should discard tokens)
  */
-router.post('/logout', (req: Request, res: Response) => {
+router.post('/logout', (_req: Request, res: Response) => {
   // For stateless JWT, logout is handled client-side
   // In production, you might want to maintain a token blacklist
   res.json({
-    message: 'Logout successful'
+    message: 'Logout successful',
   });
+  return;
 });
 
 export default router;

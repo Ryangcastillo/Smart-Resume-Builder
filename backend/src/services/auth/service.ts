@@ -1,7 +1,7 @@
-import { User, LoginCredentials, RegisterData, AuthTokens } from './types';
-import { JWTService } from './jwt';
 import prisma from '../../database/client';
 import { logger } from '../../logger';
+import { JWTService } from './jwt';
+import { AuthTokens, LoginCredentials, RegisterData, User } from './types';
 
 export class AuthService {
   /**
@@ -11,15 +11,15 @@ export class AuthService {
     try {
       // Check if user already exists
       const existingUser = await prisma.user.findUnique({
-        where: { email: userData.email }
+        where: { email: userData.email },
       });
 
       if (existingUser) {
         throw new Error('User already exists with this email');
       }
 
-      // Hash password
-      const hashedPassword = await JWTService.hashPassword(userData.password);
+      // Hash password (result unused in this stubbed flow, keep call for parity)
+      await JWTService.hashPassword(userData.password);
 
       // Create user in database
       const user = await prisma.user.create({
@@ -29,7 +29,7 @@ export class AuthService {
           lastName: userData.lastName,
           // Note: In production, you'd store hashed password in a separate auth table
           // For now, we'll use a placeholder since Neon Auth handles password storage
-        }
+        },
       });
 
       // Create default user preferences
@@ -40,7 +40,7 @@ export class AuthService {
           aiSuggestionsEnabled: true,
           emailNotifications: true,
           language: 'en',
-        }
+        },
       });
 
       logger.info(`New user registered: ${user.email}`);
@@ -62,7 +62,7 @@ export class AuthService {
     try {
       // Find user by email
       const user = await prisma.user.findUnique({
-        where: { email: credentials.email }
+        where: { email: credentials.email },
       });
 
       if (!user || !user.isActive) {
@@ -95,7 +95,7 @@ export class AuthService {
   static async getUserById(userId: string): Promise<User | null> {
     try {
       const user = await prisma.user.findUnique({
-        where: { id: userId }
+        where: { id: userId },
       });
 
       return user;
@@ -111,7 +111,7 @@ export class AuthService {
   static async getUserByEmail(email: string): Promise<User | null> {
     try {
       const user = await prisma.user.findUnique({
-        where: { email }
+        where: { email },
       });
 
       return user;
@@ -128,7 +128,7 @@ export class AuthService {
     try {
       const user = await prisma.user.update({
         where: { id: userId },
-        data: updates
+        data: updates,
       });
 
       logger.info(`User updated: ${user.email}`);
@@ -168,7 +168,7 @@ export class AuthService {
   /**
    * Verify password (placeholder for Neon Auth integration)
    */
-  private static async verifyPassword(email: string, password: string): Promise<boolean> {
+  private static async verifyPassword(_email: string, _password: string): Promise<boolean> {
     // In production, this would integrate with Neon Auth
     // For development, we'll use a simple check
     try {

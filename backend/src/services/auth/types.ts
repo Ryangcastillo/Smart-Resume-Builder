@@ -1,3 +1,5 @@
+import { Request } from 'express';
+
 // Authentication Types
 export interface User {
   id: string;

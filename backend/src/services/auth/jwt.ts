@@ -1,5 +1,5 @@
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import * as jwt from 'jsonwebtoken';
 import { config } from '../../config';
 import { JWTPayload, User } from './types';
 
@@ -17,7 +17,7 @@ export class JWTService {
       email: user.email,
     };
 
-    return jwt.sign(payload, this.jwtSecret, {
+    return (jwt as any).sign(payload, this.jwtSecret, {
       expiresIn: this.jwtExpire,
       issuer: 'smart-resume-builder',
       audience: 'smart-resume-builder-users',
@@ -33,7 +33,7 @@ export class JWTService {
       type: 'refresh',
     };
 
-    return jwt.sign(payload, this.jwtSecret, {
+    return (jwt as any).sign(payload, this.jwtSecret, {
       expiresIn: '30d', // Refresh tokens last longer
       issuer: 'smart-resume-builder',
       audience: 'smart-resume-builder-users',
@@ -45,12 +45,12 @@ export class JWTService {
    */
   static verifyAccessToken(token: string): JWTPayload {
     try {
-      const decoded = jwt.verify(token, this.jwtSecret, {
+      const decoded = (jwt as any).verify(token, this.jwtSecret, {
         issuer: 'smart-resume-builder',
         audience: 'smart-resume-builder-users',
-      }) as JWTPayload;
+      }) as any;
 
-      if (decoded.type === 'refresh') {
+      if ((decoded as any).type === 'refresh') {
         throw new Error('Refresh token used as access token');
       }
 
@@ -65,7 +65,7 @@ export class JWTService {
    */
   static verifyRefreshToken(token: string): { userId: string } {
     try {
-      const decoded = jwt.verify(token, this.jwtSecret, {
+      const decoded = (jwt as any).verify(token, this.jwtSecret, {
         issuer: 'smart-resume-builder',
         audience: 'smart-resume-builder-users',
       }) as any;
@@ -116,11 +116,16 @@ export class JWTService {
     const unit = match[2];
 
     switch (unit) {
-      case 'd': return value * 24 * 60 * 60;
-      case 'h': return value * 60 * 60;
-      case 'm': return value * 60;
-      case 's': return value;
-      default: return 3600;
+      case 'd':
+        return value * 24 * 60 * 60;
+      case 'h':
+        return value * 60 * 60;
+      case 'm':
+        return value * 60;
+      case 's':
+        return value;
+      default:
+        return 3600;
     }
   }
 }

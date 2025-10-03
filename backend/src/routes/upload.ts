@@ -1,7 +1,7 @@
-import { Router, Request, Response } from 'express';
+import { Request, Response, Router } from 'express';
 import multer from 'multer';
-import { FileParserService } from '../services/file-parser/service';
 import { logger } from '../logger';
+import { FileParserService } from '../services/file-parser/service';
 
 const router = Router();
 
@@ -12,18 +12,24 @@ const upload = multer({
   limits: {
     fileSize: FileParserService.getMaxFileSize(),
   },
-  fileFilter: (req, file, cb) => {
+  fileFilter: (_req, file, cb) => {
     const supportedTypes = FileParserService.getSupportedFileTypes();
-    const isSupported = supportedTypes.some(type =>
-      type.mimeType === file.mimetype || type.extensions.some(ext => file.originalname.toLowerCase().endsWith(ext))
+    const isSupported = supportedTypes.some(
+      (type) =>
+        type.mimeType === file.mimetype ||
+        type.extensions.some((ext) => file.originalname.toLowerCase().endsWith(ext))
     );
 
     if (isSupported) {
       cb(null, true);
     } else {
-      cb(new Error(`Unsupported file type. Supported types: ${supportedTypes.map(t => t.extensions.join(', ')).join(', ')}`));
+      cb(
+        new Error(
+          `Unsupported file type. Supported types: ${supportedTypes.map((t) => t.extensions.join(', ')).join(', ')}`
+        )
+      );
     }
-  }
+  },
 });
 
 /**
@@ -35,13 +41,13 @@ router.post('/resume', upload.single('resume'), async (req: Request, res: Respon
 
     if (!user) {
       return res.status(401).json({
-        error: 'Authentication required'
+        error: 'Authentication required',
       });
     }
 
     if (!req.file) {
       return res.status(400).json({
-        error: 'No file uploaded'
+        error: 'No file uploaded',
       });
     }
 
@@ -51,7 +57,7 @@ router.post('/resume', upload.single('resume'), async (req: Request, res: Respon
     if (!result.success) {
       return res.status(400).json({
         error: result.error,
-        metadata: result.metadata
+        metadata: result.metadata,
       });
     }
 
@@ -61,47 +67,53 @@ router.post('/resume', upload.single('resume'), async (req: Request, res: Respon
     res.json({
       message: 'File parsed successfully',
       data: normalizedData,
-      metadata: result.metadata
+      metadata: result.metadata,
     });
+    return;
   } catch (error) {
     logger.error('File upload error:', error);
 
     if (error instanceof Error) {
       return res.status(400).json({
-        error: error.message
+        error: error.message,
       });
     }
 
     res.status(500).json({
-      error: 'Failed to process uploaded file'
+      error: 'Failed to process uploaded file',
     });
+    return;
   }
 });
 
 /**
  * Get supported file types
  */
-router.get('/supported-types', (req: Request, res: Response) => {
+router.get('/supported-types', (_req: Request, res: Response) => {
   const supportedTypes = FileParserService.getSupportedFileTypes();
   const maxSize = FileParserService.getMaxFileSize();
 
   res.json({
     supportedTypes,
     maxFileSize: maxSize,
-    maxFileSizeMB: Math.round(maxSize / 1024 / 1024)
+    maxFileSizeMB: Math.round(maxSize / 1024 / 1024),
   });
+  return;
 });
 
 /**
  * Health check for file upload functionality
  */
-router.get('/health', (req: Request, res: Response) => {
+router.get('/health', (_req: Request, res: Response) => {
   res.json({
     status: 'ok',
     message: 'File upload service is running',
-    supportedTypes: FileParserService.getSupportedFileTypes().map(t => t.extensions).flat(),
-    maxFileSize: FileParserService.getMaxFileSize()
+    supportedTypes: FileParserService.getSupportedFileTypes()
+      .map((t) => t.extensions)
+      .flat(),
+    maxFileSize: FileParserService.getMaxFileSize(),
   });
+  return;
 });
 
 export default router;

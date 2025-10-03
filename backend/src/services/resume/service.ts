@@ -1,6 +1,6 @@
-import { MasterResume, CreateResumeData, UpdateResumeData, ResumeVariant } from './types';
 import prisma from '../../database/client';
 import { logger } from '../../logger';
+import { CreateResumeData, MasterResume, ResumeVariant, UpdateResumeData } from './types';
 
 export class ResumeService {
   /**
@@ -12,7 +12,7 @@ export class ResumeService {
       if (resumeData.isDefault) {
         await prisma.masterResume.updateMany({
           where: { userId, isDefault: true },
-          data: { isDefault: false }
+          data: { isDefault: false },
         });
       }
 
@@ -30,7 +30,7 @@ export class ResumeService {
           interests: resumeData.interests || [],
           templateId: resumeData.templateId,
           isDefault: resumeData.isDefault || false,
-        }
+        },
       });
 
       logger.info(`Resume created: ${resume.id} for user ${userId}`);
@@ -48,13 +48,10 @@ export class ResumeService {
     try {
       const resumes = await prisma.masterResume.findMany({
         where: { userId },
-        orderBy: [
-          { isDefault: 'desc' },
-          { updatedAt: 'desc' }
-        ]
+        orderBy: [{ isDefault: 'desc' }, { updatedAt: 'desc' }],
       });
 
-      return resumes.map(resume => this.formatResume(resume));
+      return resumes.map((resume: any) => this.formatResume(resume));
     } catch (error) {
       logger.error('Get user resumes error:', error);
       throw new Error('Failed to fetch resumes');
@@ -69,8 +66,8 @@ export class ResumeService {
       const resume = await prisma.masterResume.findFirst({
         where: {
           id: resumeId,
-          userId
-        }
+          userId,
+        },
       });
 
       return resume ? this.formatResume(resume) : null;
@@ -91,19 +88,19 @@ export class ResumeService {
       if (data.isDefault) {
         await prisma.masterResume.updateMany({
           where: { userId, isDefault: true },
-          data: { isDefault: false }
+          data: { isDefault: false },
         });
       }
 
       const resume = await prisma.masterResume.update({
         where: {
           id,
-          userId
+          userId,
         },
         data: {
           ...data,
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       });
 
       logger.info(`Resume updated: ${resume.id}`);
@@ -123,8 +120,8 @@ export class ResumeService {
       const resume = await prisma.masterResume.findFirst({
         where: {
           id: resumeId,
-          userId
-        }
+          userId,
+        },
       });
 
       if (!resume) {
@@ -133,12 +130,12 @@ export class ResumeService {
 
       // Delete associated variants first (cascade should handle this, but being explicit)
       await prisma.resumeVariant.deleteMany({
-        where: { masterResumeId: resumeId }
+        where: { masterResumeId: resumeId },
       });
 
       // Delete the resume
       await prisma.masterResume.delete({
-        where: { id: resumeId }
+        where: { id: resumeId },
       });
 
       logger.info(`Resume deleted: ${resumeId}`);
@@ -157,8 +154,8 @@ export class ResumeService {
       const resume = await prisma.masterResume.findFirst({
         where: {
           userId,
-          isDefault: true
-        }
+          isDefault: true,
+        },
       });
 
       return resume ? this.formatResume(resume) : null;
@@ -176,16 +173,16 @@ export class ResumeService {
       // Unset all other default resumes
       await prisma.masterResume.updateMany({
         where: { userId, isDefault: true },
-        data: { isDefault: false }
+        data: { isDefault: false },
       });
 
       // Set the specified resume as default
       const resume = await prisma.masterResume.update({
         where: {
           id: resumeId,
-          userId
+          userId,
         },
-        data: { isDefault: true }
+        data: { isDefault: true },
       });
 
       logger.info(`Default resume set: ${resumeId}`);
@@ -205,8 +202,8 @@ export class ResumeService {
       const resume = await prisma.masterResume.findFirst({
         where: {
           id: resumeId,
-          userId
-        }
+          userId,
+        },
       });
 
       if (!resume) {
@@ -217,12 +214,12 @@ export class ResumeService {
         where: { masterResumeId: resumeId },
         include: {
           jobDescription: true,
-          scoringResults: true
+          scoringResults: true,
         },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
       });
 
-      return variants.map(variant => ({
+      return variants.map((variant: any) => ({
         id: variant.id,
         masterResumeId: variant.masterResumeId,
         jobDescriptionId: variant.jobDescriptionId,
@@ -290,7 +287,7 @@ export class ResumeService {
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   }
 }
